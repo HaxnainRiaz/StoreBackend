@@ -17,6 +17,10 @@ const productSchema = new mongoose.Schema({
         required: [true, 'Please add a description'],
     },
     ingredients: {
+        type: [String],
+        default: []
+    },
+    usage: {
         type: String,
         default: ''
     },
@@ -47,6 +51,10 @@ const productSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
+    concerns: {
+        type: [String],
+        default: []
+    },
     isFeatured: {
         type: Boolean,
         default: false,
@@ -65,6 +73,18 @@ const productSchema = new mongoose.Schema({
     totalReviews: {
         type: Number,
         default: 0
+    },
+    metaTitle: {
+        type: String,
+        default: ''
+    },
+    metaDescription: {
+        type: String,
+        default: ''
+    },
+    isBestSeller: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true,

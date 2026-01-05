@@ -50,6 +50,25 @@ exports.deleteReview = async (req, res) => {
     }
 };
 
+// @desc    Get reviews for a product
+// @route   GET /api/reviews/product/:productId
+// @access  Public
+exports.getProductReviews = async (req, res) => {
+    try {
+        const reviews = await Review.find({ product: req.params.productId }).populate('user', 'name');
+        res.status(200).json({
+            success: true,
+            count: reviews.length,
+            data: reviews
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: 'Server Error'
+        });
+    }
+};
+
 // @desc    Add review (Customer)
 // @route   POST /api/reviews
 // @access  Private

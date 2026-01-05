@@ -7,12 +7,12 @@ const {
     getOrders,
     updateOrderStatus
 } = require('../controllers/orderController');
-const { protect, authorize } = require('../middleware/authMiddleware');
+const { protect, authorize, optional } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
 router.route('/')
-    .post(protect, addOrderItems)
+    .post(optional, addOrderItems)
     .get(protect, authorize('admin'), getOrders);
 
 router.route('/myorders').get(protect, getMyOrders);

@@ -1,5 +1,6 @@
 const Product = require('../models/Product');
 const mongoose = require('mongoose');
+const Category = require('../models/Category');
 const { createLog } = require('./auditController');
 
 // @desc    Get all products
@@ -34,12 +35,43 @@ exports.getProduct = async (req, res) => {
 // @access  Private/Admin
 exports.createProduct = async (req, res) => {
     try {
-        // Sanitize category ID: If it's a string name (like "Eyes") instead of a valid ObjectId,
-        // we strip it to prevent Mongoose CastError since it's an optional field anyway.
-        if (req.body.category && !mongoose.Types.ObjectId.isValid(req.body.category)) {
-            console.warn(`Stripping invalid category ID: ${req.body.category}`);
-            delete req.body.category;
+        // Transform Frontend Payload to Backend Schema
+        console.log('Original req.body:', JSON.stringify(req.body));
+
+        // Map isBestseller (various casings)
+        if (req.body.isBestseller !== undefined) req.body.isBestSeller = req.body.isBestseller;
+        if (req.body.isBestSeller === undefined && req.body.isBestseller !== undefined) {
+            req.body.isBestSeller = req.body.isBestseller;
         }
+
+        if (req.body.seo) {
+            req.body.metaTitle = req.body.seo.metaTitle || '';
+            req.body.metaDescription = req.body.seo.metaDescription || '';
+        }
+
+        if (req.body.howToUse !== undefined) req.body.usage = req.body.howToUse;
+
+        if (req.body.visibilityStatus) {
+            req.body.status = req.body.visibilityStatus === 'published' ? 'active' : 'inactive';
+        }
+
+        // Map Category String or Object to ID
+        if (req.body.category) {
+            if (!mongoose.Types.ObjectId.isValid(req.body.category)) {
+                // If it's a string name, find the category
+                const categoryDoc = await Category.findOne({
+                    title: { $regex: new RegExp(`^${req.body.category}$`, 'i') }
+                });
+                if (categoryDoc) {
+                    req.body.category = categoryDoc._id;
+                } else {
+                    console.warn(`Category not found: ${req.body.category}`);
+                    delete req.body.category;
+                }
+            }
+        }
+
+        console.log('Transformed req.body:', JSON.stringify(req.body));
 
         const product = await Product.create(req.body);
 
@@ -58,10 +90,34 @@ exports.createProduct = async (req, res) => {
 // @access  Private/Admin
 exports.updateProduct = async (req, res) => {
     try {
-        // Sanitize category ID for updates
-        if (req.body.category && !mongoose.Types.ObjectId.isValid(req.body.category)) {
-            delete req.body.category;
+        // Transform Frontend Payload to Backend Schema
+        console.log('Update payload original:', JSON.stringify(req.body));
+
+        if (req.body.isBestseller !== undefined) req.body.isBestSeller = req.body.isBestseller;
+        if (req.body.seo) {
+            req.body.metaTitle = req.body.seo.metaTitle || '';
+            req.body.metaDescription = req.body.seo.metaDescription || '';
         }
+        if (req.body.howToUse !== undefined) req.body.usage = req.body.howToUse;
+        if (req.body.visibilityStatus) {
+            req.body.status = req.body.visibilityStatus === 'published' ? 'active' : 'inactive';
+        }
+
+        // Map Category String or Object to ID
+        if (req.body.category) {
+            if (!mongoose.Types.ObjectId.isValid(req.body.category)) {
+                const categoryDoc = await Category.findOne({
+                    title: { $regex: new RegExp(`^${req.body.category}$`, 'i') }
+                });
+                if (categoryDoc) {
+                    req.body.category = categoryDoc._id;
+                } else {
+                    console.warn(`Update: Category not found: ${req.body.category}`);
+                    delete req.body.category;
+                }
+            }
+        }
+        console.log('Update payload transformed:', JSON.stringify(req.body));
 
         let product = await Product.findById(req.params.id);
         if (!product) {

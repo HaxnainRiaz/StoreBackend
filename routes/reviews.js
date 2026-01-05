@@ -1,8 +1,10 @@
 const express = require('express');
-const { getReviews, updateReview, deleteReview, addReview } = require('../controllers/reviewController');
+const { getReviews, updateReview, deleteReview, addReview, getProductReviews } = require('../controllers/reviewController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 const router = express.Router();
+
+router.route('/product/:productId').get(getProductReviews);
 
 router.route('/')
     .get(protect, authorize('admin'), getReviews)

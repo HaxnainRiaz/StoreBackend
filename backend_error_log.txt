@@ -1,0 +1,28 @@
+Timestamp: 2026-01-05
+Status: CRASHED
+
+Error Log:
+> backend@1.0.0 dev
+> nodemon server.js
+
+[nodemon] 3.1.11
+[nodemon] to restart at any time, enter `rs`
+[nodemon] starting `node server.js`
+[dotenv@17.2.3] injecting env (4) from .env
+Server running in development mode on port 5000
+Error: connect ETIMEDOUT 159.41.207.154:27017
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1606:16)
+[nodemon] app crashed - waiting for file changes before starting...
+
+Diagnosis:
+The backend server failed to connect to the MongoDB Atlas cluster at 159.41.207.154:27017.
+The connection timed out (ETIMEDOUT).
+
+Possible Causes:
+1. IP Whitelist: Your current IP address is not whitelisted in MongoDB Atlas Network Access.
+2. Firewall: A local firewall or network restriction is blocking outgoing traffic on port 27017.
+3. Incorrect URI: The MongoDB URI in .env points to a non-existent or unreachable cluster.
+
+Recommended Fix:
+1. Log in to MongoDB Atlas and add your current IP to the whitelist.
+2. OR Switch to a local MongoDB instance by updating backend/.env.

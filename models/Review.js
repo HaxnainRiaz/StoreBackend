@@ -21,6 +21,22 @@ const reviewSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please add a comment']
     },
+    title: {
+        type: String,
+        trim: true
+    },
+    resultsTime: {
+        type: String,
+        enum: ['1 week', '2 weeks', '3–4 weeks', 'More than a month']
+    },
+    skinType: {
+        type: String,
+        enum: ['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal']
+    },
+    recommend: {
+        type: String,
+        enum: ['Yes', 'No']
+    },
     adminReply: {
         type: String,
         default: ''
