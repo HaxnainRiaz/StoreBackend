@@ -18,9 +18,11 @@ exports.getReviews = async (req, res) => {
 // @access  Private/Admin
 exports.updateReview = async (req, res) => {
     try {
-        const review = await Review.findByIdAndUpdate(req.params.id, {
-            adminReply: req.body.adminReply
-        }, { new: true });
+        const updateData = {};
+        if (req.body.adminReply !== undefined) updateData.adminReply = req.body.adminReply;
+        if (req.body.status !== undefined) updateData.status = req.body.status;
+
+        const review = await Review.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
         // Audit Log
         await createLog(req.user.id, 'Review Moderation', `Added admin reply to review ${review._id}`);
@@ -55,7 +57,7 @@ exports.deleteReview = async (req, res) => {
 // @access  Public
 exports.getProductReviews = async (req, res) => {
     try {
-        const reviews = await Review.find({ product: req.params.productId });
+        const reviews = await Review.find({ product: req.params.productId, status: 'approved' });
         res.status(200).json({
             success: true,
             count: reviews.length,

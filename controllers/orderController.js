@@ -81,6 +81,7 @@ exports.addOrderItems = async (req, res) => {
             user: req.user ? req.user._id : null,
             items: calculatedItems,
             shippingAddress,
+            customerName: shippingAddress.fullName,
             totalAmount: finalTotal, // Server calculated total
             coupon: validCouponId,
             paymentStatus: 'pending', // Will be updated by payment gateway in prod

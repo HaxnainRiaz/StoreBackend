@@ -51,6 +51,10 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Coupon',
         default: null
+    },
+    customerName: {
+        type: String,
+        required: false
     }
 }, { timestamps: true });
 
