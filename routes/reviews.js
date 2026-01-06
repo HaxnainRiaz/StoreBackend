@@ -1,6 +1,6 @@
 const express = require('express');
 const { getReviews, updateReview, deleteReview, addReview, getProductReviews } = require('../controllers/reviewController');
-const { protect, authorize } = require('../middleware/authMiddleware');
+const { protect, authorize, optional } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -8,7 +8,7 @@ router.route('/product/:productId').get(getProductReviews);
 
 router.route('/')
     .get(protect, authorize('admin'), getReviews)
-    .post(protect, addReview);
+    .post(optional, addReview);
 
 router.route('/:id')
     .put(protect, authorize('admin'), updateReview)

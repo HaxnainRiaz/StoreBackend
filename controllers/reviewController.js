@@ -6,7 +6,7 @@ const { createLog } = require('./auditController');
 // @access  Private/Admin
 exports.getReviews = async (req, res) => {
     try {
-        const reviews = await Review.find().populate('product', 'title').populate('user', 'name');
+        const reviews = await Review.find().populate('product', 'title');
         res.status(200).json({ success: true, data: reviews });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -55,7 +55,7 @@ exports.deleteReview = async (req, res) => {
 // @access  Public
 exports.getProductReviews = async (req, res) => {
     try {
-        const reviews = await Review.find({ product: req.params.productId }).populate('user', 'name');
+        const reviews = await Review.find({ product: req.params.productId });
         res.status(200).json({
             success: true,
             count: reviews.length,
@@ -74,7 +74,14 @@ exports.getProductReviews = async (req, res) => {
 // @access  Private
 exports.addReview = async (req, res) => {
     try {
-        req.body.user = req.user.id;
+        if (req.user) {
+            req.body.user = req.user.id;
+            // Use user's name if they are logged in and name wasn't provided
+            if (!req.body.name && req.user.name) {
+                req.body.name = req.user.name;
+            }
+        }
+
         const review = await Review.create(req.body);
         res.status(201).json({ success: true, data: review });
     } catch (err) {

@@ -9,7 +9,11 @@ const reviewSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.ObjectId,
         ref: 'User',
-        required: true
+        required: false
+    },
+    name: {
+        type: String,
+        required: [true, 'Please add a name']
     },
     rating: {
         type: Number,
@@ -43,8 +47,8 @@ const reviewSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-// Prevent user from submitting more than one review per product
-reviewSchema.index({ product: 1, user: 1 }, { unique: true });
+// Indexing for performance
+reviewSchema.index({ product: 1 });
 
 // Static method to get avg rating and update product
 reviewSchema.statics.getAverageRating = async function (productId) {
