@@ -6,7 +6,8 @@ const {
     removeFromWishlist,
     addAddress,
     deleteAddress,
-    getMyOrders
+    getMyOrders,
+    updateProfile
 } = require('../controllers/userController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
@@ -22,5 +23,6 @@ router.post('/wishlist/:productId', protect, addToWishlist);
 router.delete('/wishlist/:productId', protect, removeFromWishlist);
 router.post('/addresses', protect, addAddress);
 router.delete('/addresses/:addressId', protect, deleteAddress);
+router.put('/profile', protect, updateProfile);
 
 module.exports = router;

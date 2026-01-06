@@ -37,6 +37,19 @@ const userSchema = new mongoose.Schema({
         enum: ['customer', 'admin', 'user'],
         default: 'customer'
     },
+    points: {
+        type: Number,
+        default: 0
+    },
+    tier: {
+        type: String,
+        enum: ['Bronze', 'Silver', 'Gold', 'Platinum'],
+        default: 'Bronze'
+    },
+    avatar: {
+        type: String,
+        default: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky'
+    },
     wishlist: [{
         type: mongoose.Schema.ObjectId,
         ref: 'Product'
@@ -45,9 +58,9 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Encrypt password using bcrypt
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
     if (!this.isModified('password')) {
-        next();
+        return;
     }
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);

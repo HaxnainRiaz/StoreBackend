@@ -32,6 +32,27 @@ exports.updateUser = async (req, res) => {
     }
 };
 
+// @desc    Update user profile
+// @route   PUT /api/users/profile
+// @access  Private
+exports.updateProfile = async (req, res) => {
+    try {
+        const fieldsToUpdate = {
+            name: req.body.name,
+            avatar: req.body.avatar
+        };
+
+        const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+            new: true,
+            runValidators: true
+        });
+
+        res.status(200).json({ success: true, data: user });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
 // --- CUSTOMER ACTIONS ---
 
 // @desc    Add to wishlist
