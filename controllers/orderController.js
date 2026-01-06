@@ -191,15 +191,46 @@ exports.updateOrderStatus = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        order.orderStatus = req.body.status;
-        if (req.body.status === 'delivered') {
+        const currentStatus = order.orderStatus;
+        const newStatus = req.body.status;
+
+        // 1. If order is already cancelled, it cannot be changed anymore
+        if (currentStatus === 'cancelled') {
+            return res.status(400).json({ success: false, message: 'Cancelled orders cannot be modified anymore' });
+        }
+
+        // 2. Define status hierarchy for "forward only" transitions
+        const statusHierarchy = {
+            'pending': 1,
+            'processing': 2,
+            'shipped': 3,
+            'delivered': 4
+        };
+
+        if (newStatus !== 'cancelled') {
+            // Check if new status is lower than current status
+            if (statusHierarchy[newStatus] < statusHierarchy[currentStatus]) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid transition: Current status is ${currentStatus}, cannot revert to ${newStatus}`
+                });
+            }
+        }
+
+        // If order is already delivered, it's final (cannot revert or cancel)
+        if (currentStatus === 'delivered') {
+            return res.status(400).json({ success: false, message: 'Delivered orders are final and cannot be modified' });
+        }
+
+        order.orderStatus = newStatus;
+        if (newStatus === 'delivered') {
             order.deliveredAt = Date.now();
         }
 
         const updatedOrder = await order.save();
 
         // Audit Log
-        await createLog(req.user.id, 'Order Status', `Order ${order._id} updated to ${req.body.status}`);
+        await createLog(req.user.id, 'Order Status', `Order ${order._id} updated to ${newStatus}`);
 
         res.status(200).json({ success: true, data: updatedOrder });
     } catch (err) {
