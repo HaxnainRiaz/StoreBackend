@@ -17,20 +17,32 @@ app.use(express.json());
 // Enable CORS
 const allowedOrigins = [
     process.env.FRONTEND_URL,
-    process.env.ADMIN_URL
+    process.env.ADMIN_URL,
+    'https://skin-care-store-tau.vercel.app',
+    'https://store-admin-pannel.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:3001'
 ].filter(Boolean);
 
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+
+        const isAllowed = allowedOrigins.some(allowedOrigin => {
+            return allowedOrigin === origin || allowedOrigin.startsWith(origin);
+        });
+
+        if (isAllowed || process.env.NODE_ENV === 'development') {
             callback(null, true);
         } else {
+            console.error(`Origin ${origin} not allowed by CORS`);
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 
 // Basic Route
@@ -73,6 +85,24 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/seo', seoRoutes);
 app.use('/api/support-tickets', supportTicketRoutes);
+
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+
+    // Ensure CORS headers are present on error responses
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin) || !origin) {
+        res.header('Access-Control-Allow-Origin', origin);
+        res.header('Access-Control-Allow-Credentials', 'true');
+    }
+
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || 'Server Error',
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
+});
 
 const PORT = process.env.PORT || 5000;
 
