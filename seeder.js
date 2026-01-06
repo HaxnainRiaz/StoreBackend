@@ -60,11 +60,32 @@ const importData = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI);
 
-        await Product.deleteMany();
-        await Category.deleteMany();
-        // Keep users? Or delete others but keep admin?
-        // Let's just delete non-admin users if we wanted, but deleteMany() is safer for a clean seed.
-        // Actually, let's just clear products and categories.
+        // ⚠️ CRITICAL SAFETY CHECK - PREVENT DATA LOSS
+        const existingProducts = await Product.countDocuments();
+        const existingCategories = await Category.countDocuments();
+
+        console.log('\n========================================');
+        console.log('🔍 DATABASE STATUS CHECK');
+        console.log('========================================');
+        console.log(`Existing Products: ${existingProducts}`);
+        console.log(`Existing Categories: ${existingCategories}`);
+        console.log('========================================\n');
+
+        if (existingProducts > 0 || existingCategories > 0) {
+            console.log('⚠️  WARNING: Database contains existing data!');
+            console.log('❌ SEEDER ABORTED - Data preservation mode active');
+            console.log('');
+            console.log('To seed a fresh database:');
+            console.log('1. Backup your data first');
+            console.log('2. Manually delete collections in MongoDB Atlas');
+            console.log('3. Run this seeder again');
+            console.log('');
+            console.log('✅ Your existing data is SAFE and unchanged.');
+            process.exit(0);
+        }
+
+        // Only seed if database is completely empty
+        console.log('✅ Database is empty. Proceeding with initial seed...\n');
 
         const createdCategories = await Category.insertMany(categories);
 
@@ -81,10 +102,12 @@ const importData = async () => {
 
         await Product.insertMany(products);
 
-        console.log('Database Seeded Successfully with Categories!');
-        process.exit();
+        console.log('✅ Database Seeded Successfully!');
+        console.log(`   - ${createdCategories.length} categories created`);
+        console.log(`   - ${products.length} products created`);
+        process.exit(0);
     } catch (err) {
-        console.error(`Error: ${err.message}`);
+        console.error(`❌ Error: ${err.message}`);
         process.exit(1);
     }
 };

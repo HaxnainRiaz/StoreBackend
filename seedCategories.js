@@ -5,10 +5,10 @@ const Category = require('./models/Category');
 dotenv.config();
 
 const categories = [
-    { name: "Face", slug: "face", description: "Advanced care for your complexion" },
-    { name: "Eyes", slug: "eyes", description: "Targeted treatments for the delicate eye area" },
-    { name: "Body", slug: "body", description: "Luxurious moisture for your entire silhouette" },
-    { name: "Serums", slug: "serums", description: "High-potency elixirs for specific concerns" }
+    { title: "Face", slug: "face", description: "Advanced care for your complexion" },
+    { title: "Eyes", slug: "eyes", description: "Targeted treatments for the delicate eye area" },
+    { title: "Body", slug: "body", description: "Luxurious moisture for your entire silhouette" },
+    { title: "Serums", slug: "serums", description: "High-potency elixirs for specific concerns" }
 ];
 
 const seedCategories = async () => {
@@ -16,13 +16,19 @@ const seedCategories = async () => {
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('Connected to DB...');
 
-        await Category.deleteMany({});
-        const created = await Category.insertMany(categories);
+        // Safety check - don't delete if categories exist
+        const existingCount = await Category.countDocuments();
+        if (existingCount > 0) {
+            console.log(`⚠️  ${existingCount} categories already exist. Skipping seed.`);
+            console.log('✅ Your existing categories are safe.');
+            process.exit(0);
+        }
 
-        console.log(`${created.length} Categories seeded!`);
-        process.exit();
+        const created = await Category.insertMany(categories);
+        console.log(`✅ ${created.length} Categories seeded successfully!`);
+        process.exit(0);
     } catch (err) {
-        console.error(err);
+        console.error('❌ Error:', err.message);
         process.exit(1);
     }
 };
