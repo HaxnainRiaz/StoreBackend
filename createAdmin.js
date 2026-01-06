@@ -2,15 +2,23 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const User = require('./models/User');
 
-dotenv.config();
+const envPath = process.argv.includes('--prod') ? '.env.production' : '.env';
+dotenv.config({ path: envPath });
+
+console.log(`Using environment: ${envPath}`);
 
 const createAdmin = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI);
 
-        const adminExists = await User.findOne({ email: 'admin@luminelle.com' });
-        if (adminExists) {
-            console.log('Admin already exists!');
+        let admin = await User.findOne({ email: 'admin@luminelle.com' });
+
+        if (admin) {
+            console.log('Admin already exists. Updating password...');
+            admin.password = 'admin123';
+            admin.role = 'admin';
+            await admin.save();
+            console.log('Admin password updated successfully!');
             process.exit();
         }
 
