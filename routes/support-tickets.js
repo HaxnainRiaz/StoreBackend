@@ -13,3 +13,4 @@ router.route('/:id')
     .delete(protect, authorize('admin'), deleteTicket);
 
 module.exports = router;
+
