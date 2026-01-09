@@ -1,3 +1,4 @@
+const express = require('express');
 const { getTickets, getMyTickets, updateTicket, createTicket, addReply, deleteTicket } = require('../controllers/supportTicketController');
 const { protect, authorize, optional } = require('../middleware/authMiddleware');
 
