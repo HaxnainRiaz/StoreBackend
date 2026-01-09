@@ -17,7 +17,7 @@ const productsData = [
     {
         title: "Radiant Glow Face Oil",
         slug: "radiant-glow-face-oil",
-        price: 85,
+        price: 4500,
         description: "Restore your skin's natural radiance with our luxury facial oil.",
         images: ["https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=800"],
         stock: 45,
@@ -30,8 +30,8 @@ const productsData = [
     {
         title: "Peptide Firming Cream",
         slug: "peptide-firming-cream",
-        price: 92,
-        salePrice: 85,
+        price: 5200,
+        salePrice: 4800,
         description: "Smooth and firm your skin with our peptide-rich cream.",
         images: ["https://images.unsplash.com/photo-1629198688000-71f23e745b6e?auto=format&fit=crop&q=80&w=800"],
         stock: 12,
@@ -44,7 +44,7 @@ const productsData = [
     {
         title: "Luminous Eye Serum",
         slug: "luminous-eye-serum",
-        price: 64,
+        price: 3800,
         description: "Brighten your eyes instantly with our caffeine-infused serum.",
         images: ["https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=800"],
         stock: 5,

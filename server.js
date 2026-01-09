@@ -19,8 +19,6 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 const allowedOrigins = [
     process.env.FRONTEND_URL,
     process.env.ADMIN_URL,
-    'https://skin-care-store-tau.vercel.app',
-    'https://store-admin-pannel.vercel.app',
     'http://localhost:3000',
     'http://localhost:3001'
 ].filter(Boolean);

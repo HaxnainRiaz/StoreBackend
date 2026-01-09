@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const settingsSchema = new mongoose.Schema({
     announcementBar: {
         enabled: { type: Boolean, default: true },
-        text: { type: String, default: 'Free Shipping on Orders Over $75' }
+        text: { type: String, default: 'Free Shipping on Orders Over Rs. 5,000' }
     },
     hero: {
         headline: { type: String, default: 'Natural Beauty, Redefined' },
