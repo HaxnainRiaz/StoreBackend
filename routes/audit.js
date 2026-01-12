@@ -7,5 +7,6 @@ router.use(protect);
 router.use(authorize('admin'));
 
 router.get('/', getAuditLogs);
+//dsd
 
 module.exports = router;
