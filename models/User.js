@@ -46,6 +46,11 @@ const userSchema = new mongoose.Schema({
         enum: ['Bronze', 'Silver', 'Gold', 'Platinum'],
         default: 'Bronze'
     },
+    phone: String,
+    gender: {
+        type: String,
+        enum: ['Male', 'Female', 'Other', 'Prefer not to say']
+    },
     avatar: {
         type: String,
         default: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky'

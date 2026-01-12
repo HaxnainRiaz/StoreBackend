@@ -74,6 +74,7 @@ const settingsRoutes = require('./routes/settings');
 const newsletterRoutes = require('./routes/newsletter');
 const seoRoutes = require('./routes/seo');
 const supportTicketRoutes = require('./routes/support-tickets');
+const blogRoutes = require('./routes/blogRoutes');
 
 // Use Routes
 app.use('/api/auth', authRoutes);
@@ -92,6 +93,7 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/seo', seoRoutes);
 app.use('/api/support-tickets', supportTicketRoutes);
+app.use('/api/blogs', blogRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

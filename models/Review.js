@@ -49,7 +49,8 @@ const reviewSchema = new mongoose.Schema({
         type: String,
         enum: ['pending', 'approved', 'rejected'],
         default: 'pending'
-    }
+    },
+    images: [String]
 }, { timestamps: true });
 
 // Indexing for performance

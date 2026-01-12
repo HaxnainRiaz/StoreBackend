@@ -1,7 +1,9 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Coupon = require('../models/Coupon');
+const User = require('../models/User'); // Import User for admin lookup
 const { createLog } = require('./auditController');
+const sendWhatsAppNotification = require('../utils/whatsapp');
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -113,6 +115,31 @@ exports.addOrderItems = async (req, res) => {
             }
         });
 
+        // 7. Notify Admins (WhatsApp)
+        // Run asynchronously to not block response
+        (async () => {
+            try {
+                // Find all admins with a phone number
+                const admins = await User.find({ role: 'admin', phone: { $exists: true, $ne: '' } });
+
+                if (admins.length > 0) {
+                    const message = `🛍️ *New Order Received!*
+ID: ${createdOrder._id}
+Items: ${calculatedItems.length}
+Total: $${finalTotal.toFixed(2)}
+Customer: ${shippingAddress.fullName}
+                    
+Check Admin Panel for details.`;
+
+                    for (const admin of admins) {
+                        await sendWhatsAppNotification(admin.phone, message);
+                    }
+                }
+            } catch (notifyErr) {
+                console.error("Notification Error:", notifyErr.message);
+            }
+        })();
+
     } catch (err) {
         console.error("Order Create Error:", err);
         res.status(500).json({ success: false, message: err.message });
@@ -194,44 +221,41 @@ exports.updateOrderStatus = async (req, res) => {
         const currentStatus = order.orderStatus;
         const newStatus = req.body.status;
 
-        // 1. If order is already cancelled, it cannot be changed anymore
-        if (currentStatus === 'cancelled') {
-            return res.status(400).json({ success: false, message: 'Cancelled orders cannot be modified anymore' });
-        }
-
-        // 2. Define status hierarchy for "forward only" transitions
-        const statusHierarchy = {
+        const hierarchy = {
             'pending': 1,
             'processing': 2,
             'confirmed': 3,
             'shipped': 4,
-            'delivered': 5
+            'delivered': 5,
+            'cancelled': 0
         };
 
+        // Validation logic
         if (newStatus !== 'cancelled') {
-            // Check if new status is lower than current status
-            if (statusHierarchy[newStatus] < statusHierarchy[currentStatus]) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Invalid transition: Current status is ${currentStatus}, cannot revert to ${newStatus}`
-                });
+            const currentRank = hierarchy[currentStatus] || 0;
+            const newRank = hierarchy[newStatus] || 0;
+
+            if (newRank <= currentRank && currentStatus !== 'cancelled') {
+                return res.status(400).json({ success: false, message: `Cannot move from ${currentStatus} back to ${newStatus}` });
             }
         }
 
-        // If order is already delivered, it's final (cannot revert or cancel)
-        if (currentStatus === 'delivered') {
-            return res.status(400).json({ success: false, message: 'Delivered orders are final and cannot be modified' });
-        }
-
         order.orderStatus = newStatus;
-        if (newStatus === 'delivered') {
+
+        // Auto-update deliveredAt
+        if (newStatus === 'delivered' && !order.deliveredAt) {
             order.deliveredAt = Date.now();
+            // Auto-mark as paid if delivered
+            if (order.paymentStatus !== 'paid') {
+                order.paymentStatus = 'paid';
+                order.paidAt = Date.now();
+            }
         }
 
         const updatedOrder = await order.save();
 
         // Audit Log
-        await createLog(req.user.id, 'Order Status', `Order ${order._id} updated to ${newStatus}`);
+        await createLog(req.user.id, 'Order Status', `Order ${order._id} updated to ${newStatus}${newStatus === 'delivered' ? ' and marked as PAID' : ''}`);
 
         res.status(200).json({ success: true, data: updatedOrder });
     } catch (err) {

@@ -39,7 +39,9 @@ exports.updateProfile = async (req, res) => {
     try {
         const fieldsToUpdate = {
             name: req.body.name,
-            avatar: req.body.avatar
+            avatar: req.body.avatar,
+            phone: req.body.phone,
+            gender: req.body.gender
         };
 
         const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
