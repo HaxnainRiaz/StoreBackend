@@ -21,6 +21,7 @@ const allowedOrigins = [
     process.env.ADMIN_URL,
     'https://luminelle.org',
     'https://www.luminelle.org',
+    'https://store-admin-pannel.vercel.app',
     'http://localhost:3000',
     'http://localhost:3001'
 ].filter(Boolean);
