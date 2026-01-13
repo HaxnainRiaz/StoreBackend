@@ -2,7 +2,6 @@ const AuditLog = require('../models/AuditLog');
 require('../models/User'); // Ensure User model is registered for populate
 
 // @desc    Get all audit logs
-// @route   GET /api/audit
 // @access  Private/Admin
 exports.getAuditLogs = async (req, res) => {
     try {
