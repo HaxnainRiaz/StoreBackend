@@ -28,6 +28,10 @@ exports.protect = async (req, res, next) => {
             return res.status(401).json({ success: false, message: 'User not found with this token' });
         }
 
+        if (req.user.status === 'banned') {
+            return res.status(403).json({ success: false, message: 'Your account has been suspended. Please contact support.' });
+        }
+
         next();
     } catch (err) {
         console.error('Auth Error:', err.message);

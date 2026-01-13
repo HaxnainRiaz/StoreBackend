@@ -48,6 +48,10 @@ exports.login = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
+        if (user.status === 'banned') {
+            return res.status(403).json({ success: false, message: 'Your account has been suspended. Please contact support.' });
+        }
+
         sendTokenResponse(user, 200, res);
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -82,7 +86,9 @@ const sendTokenResponse = (user, statusCode, res) => {
             id: user._id,
             name: user.name,
             email: user.email,
-            role: user.role
+            email: user.email,
+            role: user.role,
+            status: user.status
         }
     });
 };

@@ -37,6 +37,11 @@ const userSchema = new mongoose.Schema({
         enum: ['customer', 'admin', 'user'],
         default: 'customer'
     },
+    status: {
+        type: String,
+        enum: ['active', 'banned'],
+        default: 'active'
+    },
     points: {
         type: Number,
         default: 0

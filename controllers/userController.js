@@ -22,8 +22,8 @@ exports.updateUser = async (req, res) => {
             runValidators: true
         });
 
-        if (req.body.isBanned !== undefined) {
-            await createLog(req.user.id, 'User Status Update', `${req.body.isBanned ? 'Banned' : 'Unbanned'} user: ${user.email}`);
+        if (req.body.status) {
+            await createLog(req.user.id, 'User Status Update', `Updated user status to ${req.body.status}: ${user.email}`);
         }
 
         res.status(200).json({ success: true, data: user });
